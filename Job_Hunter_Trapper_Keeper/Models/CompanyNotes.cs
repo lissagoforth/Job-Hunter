@@ -9,5 +9,8 @@ namespace Job_Hunter_Trapper_Keeper.Models
 
         [Required]
         public ApplicationUser User;
+
+        [Required]
+        public string Notes { get; set; }
     }
 }
