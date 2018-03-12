@@ -11,6 +11,10 @@ namespace Job_Hunter_Trapper_Keeper.Models
         public ApplicationUser User;
 
         [Required]
+        public int CompanyId { get; set; }
+        public Company Company { get; set; }
+
+        [Required]
         public string Notes { get; set; }
     }
 }

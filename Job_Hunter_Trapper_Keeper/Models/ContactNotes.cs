@@ -11,6 +11,10 @@ namespace Job_Hunter_Trapper_Keeper.Models
         public ApplicationUser User;
 
         [Required]
+        public int ContactId { get; set; }
+        public Contact Contact { get; set; }
+
+        [Required]
         public string Notes { get; set; }
     }
 }

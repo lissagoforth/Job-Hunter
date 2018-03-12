@@ -8,13 +8,12 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using System;
 
-namespace Job_Hunter_Trapper_Keeper.Data.Migrations
+namespace Job_Hunter_Trapper_Keeper.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20180303214908_Initial")]
-    partial class Initial
+    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
     {
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -106,7 +105,7 @@ namespace Job_Hunter_Trapper_Keeper.Data.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<int?>("CompanyId");
+                    b.Property<int>("CompanyId");
 
                     b.Property<string>("Notes")
                         .IsRequired();
@@ -145,7 +144,7 @@ namespace Job_Hunter_Trapper_Keeper.Data.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<int?>("ContactId");
+                    b.Property<int>("ContactId");
 
                     b.Property<string>("Notes")
                         .IsRequired();
@@ -163,6 +162,8 @@ namespace Job_Hunter_Trapper_Keeper.Data.Migrations
                         .ValueGeneratedOnAdd();
 
                     b.Property<int>("CompanyId");
+
+                    b.Property<string>("JobTitle");
 
                     b.HasKey("Id");
 
@@ -188,7 +189,7 @@ namespace Job_Hunter_Trapper_Keeper.Data.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<int?>("JobId");
+                    b.Property<int>("JobId");
 
                     b.Property<string>("Notes")
                         .IsRequired();
@@ -310,23 +311,26 @@ namespace Job_Hunter_Trapper_Keeper.Data.Migrations
 
             modelBuilder.Entity("Job_Hunter_Trapper_Keeper.Models.CompanyNotes", b =>
                 {
-                    b.HasOne("Job_Hunter_Trapper_Keeper.Models.Company")
-                        .WithMany("companyNotes")
-                        .HasForeignKey("CompanyId");
+                    b.HasOne("Job_Hunter_Trapper_Keeper.Models.Company", "Company")
+                        .WithMany("CompanyNotes")
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("Job_Hunter_Trapper_Keeper.Models.ContactNotes", b =>
                 {
-                    b.HasOne("Job_Hunter_Trapper_Keeper.Models.Contact")
-                        .WithMany("contactNotes")
-                        .HasForeignKey("ContactId");
+                    b.HasOne("Job_Hunter_Trapper_Keeper.Models.Contact", "Contact")
+                        .WithMany("ContactNotes")
+                        .HasForeignKey("ContactId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("Job_Hunter_Trapper_Keeper.Models.JobNotes", b =>
                 {
-                    b.HasOne("Job_Hunter_Trapper_Keeper.Models.Job")
+                    b.HasOne("Job_Hunter_Trapper_Keeper.Models.Job", "Job")
                         .WithMany("jobNotes")
-                        .HasForeignKey("JobId");
+                        .HasForeignKey("JobId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

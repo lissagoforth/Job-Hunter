@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Job_Hunter_Trapper_Keeper.Data;
 using Job_Hunter_Trapper_Keeper.Models;
+using Job_Hunter_Trapper_Keeper.Models.ViewModels;
+using Microsoft.AspNetCore.Identity;
 
 namespace Job_Hunter_Trapper_Keeper.Controllers
 {
@@ -19,10 +21,29 @@ namespace Job_Hunter_Trapper_Keeper.Controllers
             _context = context;
         }
 
+        private readonly UserManager<ApplicationUser> _userManager;
+
+        public JobsController(UserManager<ApplicationUser> userManager)
+        {
+            _userManager = userManager;
+        }
+
+
+
         // GET: Jobs
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Job.ToListAsync());
+            JobListViewModel model = new JobListViewModel();
+            model.Jobs = await (from j in _context.Job
+                          join c in _context.Company
+                          on j.CompanyId equals c.Id
+                          select new JobViewModel
+                          {
+                              Id = j.Id,
+                              Company = c.Name,
+                              JobTitle = j.JobTitle
+                          }).ToListAsync();
+            return View(model);
         }
 
         // GET: Jobs/Details/5
@@ -34,6 +55,7 @@ namespace Job_Hunter_Trapper_Keeper.Controllers
             }
 
             var job = await _context.Job
+                .Include("JobNotes")
                 .SingleOrDefaultAsync(m => m.Id == id);
             if (job == null)
             {
@@ -54,15 +76,45 @@ namespace Job_Hunter_Trapper_Keeper.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,CompanyId")] Job job)
+        public async Task<IActionResult> Create( JobCreateViewModel job)
         {
-            if (ModelState.IsValid)
+            //create new instance of company
+
+            var c = new Company();
+            if (_context.Company.Any(com => com.Name == job.Company))
             {
-                _context.Add(job);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                c = _context.Company.SingleOrDefault(com => com.Name == job.Company);
             }
-            return View(job);
+
+            else
+            {
+                c.Name = job.Company;
+                _context.Company.Add(c);
+                _context.SaveChanges();
+            }
+            
+            //create new instance of job
+            var j = new Job()
+            {
+                CompanyId = c.Id,
+                JobTitle = job.JobTitle
+            };
+
+            _context.Job.Add(j);
+            _context.SaveChanges();
+
+            //create new instance of jobnote
+            var note = new JobNotes()
+            {
+                User = await _userManager.GetUserAsync(User),
+                JobId = j.Id,
+                Notes = job.Note,
+            };
+
+            _context.JobNotes.Add(note);
+            _context.SaveChanges();
+
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: Jobs/Edit/5
@@ -73,13 +125,69 @@ namespace Job_Hunter_Trapper_Keeper.Controllers
                 return NotFound();
             }
 
-            var job = await _context.Job.SingleOrDefaultAsync(m => m.Id == id);
+            var job = await _context.Job
+                .Include("JobNotes")
+                .SingleOrDefaultAsync(m => m.Id == id);
             if (job == null)
             {
                 return NotFound();
             }
             return View(job);
         }
+
+        // GET: Jobs/Edit/5
+        public async Task<IActionResult> AddNote(int jobId)
+        {
+
+            var job = await _context.Job
+                .Include("JobNotes")
+                .SingleOrDefaultAsync(m => m.Id == jobId);
+            if (job == null)
+            {
+                return NotFound();
+            }
+            return View(job);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddNote(int jobId, JobNotes jobNote)
+        {
+            var note = new JobNotes()
+            {
+                User =  await _userManager.GetUserAsync(User),
+                JobId = jobId,
+                Notes = jobNote.Notes,
+            };
+
+            if (jobId != jobNote.JobId)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _context.Update(jobNote);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!JobExists(jobNote.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction(nameof(Index));
+            }
+            return View(jobNote);
+        }
+
 
         // POST: Jobs/Edit/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
@@ -125,6 +233,7 @@ namespace Job_Hunter_Trapper_Keeper.Controllers
             }
 
             var job = await _context.Job
+                .Include("JobNotes")
                 .SingleOrDefaultAsync(m => m.Id == id);
             if (job == null)
             {
@@ -139,7 +248,9 @@ namespace Job_Hunter_Trapper_Keeper.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var job = await _context.Job.SingleOrDefaultAsync(m => m.Id == id);
+            var job = await _context.Job
+                .Include("JobNotes")
+                .SingleOrDefaultAsync(m => m.Id == id);
             _context.Job.Remove(job);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));

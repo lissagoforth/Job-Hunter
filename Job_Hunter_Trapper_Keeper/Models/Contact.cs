@@ -26,7 +26,6 @@ namespace Job_Hunter_Trapper_Keeper.Models
         [EmailAddress]
         public string Email { get; set; }
 
-        public ICollection<ContactNotes> contactNotes { get; set; }
-        public ContactNotes ContactNotes;
+        public ICollection<ContactNotes> ContactNotes { get; set; }
     }
 }

@@ -24,7 +24,6 @@ namespace Job_Hunter_Trapper_Keeper.Models
 
         public string Phone { get; set; }
 
-        public ICollection<CompanyNotes> companyNotes { get; set; }
-        public CompanyNotes CompanyNotes;
+        public ICollection<CompanyNotes> CompanyNotes { get; set; }
     }
 }

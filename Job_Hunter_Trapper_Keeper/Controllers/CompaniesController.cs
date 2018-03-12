@@ -54,7 +54,7 @@ namespace Job_Hunter_Trapper_Keeper.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Address,City,State,Zip,Phone")] Company company)
+        public async Task<IActionResult> Create(Company company)
         {
             if (ModelState.IsValid)
             {
