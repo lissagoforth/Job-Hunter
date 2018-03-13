@@ -6,12 +6,15 @@ using System.Threading.Tasks;
 
 namespace Job_Hunter_Trapper_Keeper.Models.ViewModels
 {
-    public class ContactNotesViewModel
+    public class ContactCreateViewModel
     {
         public int Id { get; set; }
 
-        [Display(Name = "Contact's Name")]
-        public string ContactName { get; set; }
+        [Display(Name = "First Name")]
+        public string FirstName { get; set; }
+
+        [Display(Name = "Last Name")]
+        public string LastName { get; set; }
 
         [Required]
         public string Phone { get; set; }
@@ -19,7 +22,7 @@ namespace Job_Hunter_Trapper_Keeper.Models.ViewModels
         [EmailAddress]
         public string Email { get; set; }
 
-        [Display(Name = "Notes")]
-        public virtual IEnumerable<ContactNotes> ContactNotes { get; set; }
+        [Display(Name = "Contact Notes")]
+        public string Note { get; set; }
     }
 }

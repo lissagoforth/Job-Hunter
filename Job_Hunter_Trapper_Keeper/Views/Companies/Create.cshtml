@@ -1,4 +1,4 @@
-﻿@model Job_Hunter_Trapper_Keeper.Models.Company
+﻿@model Job_Hunter_Trapper_Keeper.Models.ViewModels.CompanyCreateViewModel
 
 @{
     ViewData["Title"] = "Create";
@@ -43,9 +43,9 @@
                 <span asp-validation-for="Phone" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="CompanyNotes" class="control-label"></label>
-                <textarea asp-for="CompanyNotes" class="form-control"></textarea>
-                <span asp-validation-for="CompanyNotes" class="text-danger"></span>
+                <label asp-for="Note" class="control-label"></label>
+                <textarea asp-for="Note" class="form-control"></textarea>
+                <span asp-validation-for="Note" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-default" />

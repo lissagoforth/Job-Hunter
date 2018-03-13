@@ -13,7 +13,7 @@ namespace Job_Hunter_Trapper_Keeper.Models
 
         [Required]
         public int CompanyId { get; set; }
-        public Company company;
+        public Company Company { get; set; }
 
         [Display(Name = "Job Title")]
         public string JobTitle { get; set; }

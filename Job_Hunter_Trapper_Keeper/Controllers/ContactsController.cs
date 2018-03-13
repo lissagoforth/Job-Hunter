@@ -7,16 +7,20 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Job_Hunter_Trapper_Keeper.Data;
 using Job_Hunter_Trapper_Keeper.Models;
+using Microsoft.AspNetCore.Identity;
+using Job_Hunter_Trapper_Keeper.Models.ViewModels;
 
 namespace Job_Hunter_Trapper_Keeper.Controllers
 {
     public class ContactsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public ContactsController(ApplicationDbContext context)
+        public ContactsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: Contacts
@@ -28,19 +32,32 @@ namespace Job_Hunter_Trapper_Keeper.Controllers
         // GET: Contacts/Details/5
         public async Task<IActionResult> Details(int? id)
         {
+            var c = new ContactNotesViewModel();
+
             if (id == null)
             {
                 return NotFound();
             }
 
             var contact = await _context.Contact
+                .Include("ContactNotes")
                 .SingleOrDefaultAsync(m => m.Id == id);
+
+            var fullname = (contact.FirstName + " " + contact.LastName);
+
+            c.Id = contact.Id;
+            c.ContactName = fullname;
+            c.Email = contact.Email;
+            c.Phone = contact.Phone;
+            c.ContactNotes = contact.ContactNotes;
+
             if (contact == null)
             {
                 return NotFound();
             }
 
-            return View(contact);
+
+            return View(c);
         }
 
         // GET: Contacts/Create
@@ -54,30 +71,62 @@ namespace Job_Hunter_Trapper_Keeper.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,FirstName,LastName,Phone,Email")] Contact contact)
+        public async Task<IActionResult> Create( ContactCreateViewModel contact)
         {
-            if (ModelState.IsValid)
+            //create new instance of contact
+            var c = new Contact()
             {
-                _context.Add(contact);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(contact);
+                FirstName = contact.FirstName,
+                LastName = contact.LastName,
+                Email = contact.Email,
+                Phone = contact.Phone
+            };
+
+            _context.Contact.Add(c);
+            _context.SaveChanges();
+
+            //create new instance of jobnote
+            var note = new ContactNotes()
+            {
+                User = await _userManager.GetUserAsync(User),
+                ContactId = c.Id,
+                Notes = contact.Note
+            };
+
+            _context.ContactNotes.Add(note);
+            _context.SaveChanges();
+
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: Contacts/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
+            var c = new ContactNotesViewModel();
+
             if (id == null)
             {
                 return NotFound();
             }
 
-            var contact = await _context.Contact.SingleOrDefaultAsync(m => m.Id == id);
+            var contact = await _context.Contact
+                .Include("ContactNotes")
+                .SingleOrDefaultAsync(m => m.Id == id);
+
+            var fullname = (contact.FirstName + " " + contact.LastName);
+
+            c.Id = contact.Id;
+            c.ContactName = fullname;
+            c.Email = contact.Email;
+            c.Phone = contact.Phone;
+            c.ContactNotes = contact.ContactNotes;
+
             if (contact == null)
             {
                 return NotFound();
             }
+
+
             return View(contact);
         }
 
@@ -86,7 +135,7 @@ namespace Job_Hunter_Trapper_Keeper.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,FirstName,LastName,Phone,Email")] Contact contact)
+        public async Task<IActionResult> Edit(int id, ContactNotesViewModel contact)
         {
             if (id != contact.Id)
             {
@@ -116,20 +165,86 @@ namespace Job_Hunter_Trapper_Keeper.Controllers
             return View(contact);
         }
 
+        // GET: Jobs/Add Note/5
+        public async Task<IActionResult> AddNote(int contactId)
+        {
+
+            var contact = await _context.Contact
+                .Include("ContactNotes")
+                .SingleOrDefaultAsync(m => m.Id == contactId);
+            if (contact == null)
+            {
+                return NotFound();
+            }
+            return View(contact);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddNote(int contactId, ContactNotes contactNote)
+        {
+            var note = new ContactNotes()
+            {
+                User = await _userManager.GetUserAsync(User),
+                ContactId = contactId,
+                Notes = contactNote.Notes,
+            };
+
+            if (contactId != contactNote.ContactId)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _context.Update(contactNote);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!ContactExists(contactNote.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction(nameof(Index));
+            }
+            return View(contactNote);
+        }
+
         // GET: Contacts/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
+            var c = new ContactNotesViewModel();
+
             if (id == null)
             {
                 return NotFound();
             }
 
             var contact = await _context.Contact
+                .Include("ContactNotes")
                 .SingleOrDefaultAsync(m => m.Id == id);
+
+            var fullname = (contact.FirstName + " " + contact.LastName);
+
+            c.Id = contact.Id;
+            c.ContactName = fullname;
+            c.Email = contact.Email;
+            c.Phone = contact.Phone;
+            c.ContactNotes = contact.ContactNotes;
+
             if (contact == null)
             {
                 return NotFound();
             }
+
 
             return View(contact);
         }

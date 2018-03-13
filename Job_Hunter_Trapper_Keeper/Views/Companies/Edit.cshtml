@@ -43,6 +43,19 @@
                 <input asp-for="Phone" class="form-control" />
                 <span asp-validation-for="Phone" class="text-danger"></span>
             </div>
+            @foreach (var note in Model.CompanyNotes)
+            {
+            <div class="form-group">
+                <label asp-for="CompanyNotes" class="control-label"></label>
+                <input asp-for="CompanyNotes" class="form-control" />
+                <span asp-validation-for="CompanyNotes" class="text-danger"></span>
+            </div>
+            }
+            <div class="form-group">
+                <label asp-for="CompanyNotes" class="control-label"></label>
+                <input asp-for="CompanyNotes" class="form-control" />
+                <span asp-validation-for="CompanyNotes" class="text-danger"></span>
+            </div>
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-default" />
             </div>

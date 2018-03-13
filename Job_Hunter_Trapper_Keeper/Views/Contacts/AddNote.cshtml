@@ -1,18 +1,20 @@
-﻿@model Job_Hunter_Trapper_Keeper.Models.JobNotes
+﻿@model Job_Hunter_Trapper_Keeper.Models.ContactNotes
 
 @{
     ViewData["Title"] = "AddNote";
 }
 
 <h2>AddNote</h2>
+
+<h4>ContactNotes</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="AddNote" asp-route-id="@Model.JobId">
+        <form asp-action="AddNote">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <label asp-for="Job" class="control-label"></label>
-                <select asp-for="Job" class="form-control" asp-items="ViewBag.Job"></select>
+                <label asp-for="Contact" class="control-label"></label>
+                <select asp-for="Contact" class ="form-control" asp-items="ViewBag.Contact"></select>
             </div>
             <div class="form-group">
                 <label asp-for="Notes" class="control-label"></label>
@@ -20,7 +22,7 @@
                 <span asp-validation-for="Notes" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <input type="submit" value="Add Note" class="btn btn-default" />
+                <input type="submit" value="Create" class="btn btn-default" />
             </div>
         </form>
     </div>
@@ -30,6 +32,3 @@
     <a asp-action="Index">Back to List</a>
 </div>
 
-@section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-}

@@ -15,16 +15,11 @@ namespace Job_Hunter_Trapper_Keeper.Controllers
     public class JobsController : Controller
     {
         private readonly ApplicationDbContext _context;
-
-        public JobsController(ApplicationDbContext context)
-        {
-            _context = context;
-        }
-
         private readonly UserManager<ApplicationUser> _userManager;
 
-        public JobsController(UserManager<ApplicationUser> userManager)
+        public JobsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
         {
+            _context = context;
             _userManager = userManager;
         }
 
@@ -49,6 +44,8 @@ namespace Job_Hunter_Trapper_Keeper.Controllers
         // GET: Jobs/Details/5
         public async Task<IActionResult> Details(int? id)
         {
+            var j = new JobViewModel();
+
             if (id == null)
             {
                 return NotFound();
@@ -56,13 +53,21 @@ namespace Job_Hunter_Trapper_Keeper.Controllers
 
             var job = await _context.Job
                 .Include("JobNotes")
+                .Include("Company")
                 .SingleOrDefaultAsync(m => m.Id == id);
+
+            j.Id = job.Id;
+            j.Company = job.Company.Name;
+            j.JobTitle = job.JobTitle;
+            j.JobNotes = job.JobNotes;
+             
             if (job == null)
             {
                 return NotFound();
             }
 
-            return View(job);
+
+            return View(j);
         }
 
         // GET: Jobs/Create
@@ -117,31 +122,19 @@ namespace Job_Hunter_Trapper_Keeper.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // GET: Jobs/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var job = await _context.Job
-                .Include("JobNotes")
-                .SingleOrDefaultAsync(m => m.Id == id);
-            if (job == null)
-            {
-                return NotFound();
-            }
-            return View(job);
-        }
-
-        // GET: Jobs/Edit/5
+        // GET: Jobs/Add Note/5
         public async Task<IActionResult> AddNote(int jobId)
         {
+            var note = new JobNotes();
 
             var job = await _context.Job
                 .Include("JobNotes")
                 .SingleOrDefaultAsync(m => m.Id == jobId);
+
+            note.User = await _userManager.GetUserAsync(User);
+            note.JobId = jobId;
+            note.Notes = "this is a hard-coded test note";
+
             if (job == null)
             {
                 return NotFound();
@@ -185,16 +178,44 @@ namespace Job_Hunter_Trapper_Keeper.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(jobNote);
+            return View(note);
         }
 
+        // GET: Jobs/Edit/5
+        public async Task<IActionResult> Edit(int? id)
+        {
+            var j = new JobViewModel();
+
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var job = await _context.Job
+                .Include("JobNotes")
+                .Include("Company")
+                .SingleOrDefaultAsync(m => m.Id == id);
+
+            j.Id = job.Id;
+            j.Company = job.Company.Name;
+            j.JobTitle = job.JobTitle;
+            j.JobNotes = job.JobNotes;
+
+            if (job == null)
+            {
+                return NotFound();
+            }
+
+
+            return View(j);
+        }
 
         // POST: Jobs/Edit/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,CompanyId")] Job job)
+        public async Task<IActionResult> Edit(int id, JobViewModel job)
         {
             if (id != job.Id)
             {
@@ -227,6 +248,8 @@ namespace Job_Hunter_Trapper_Keeper.Controllers
         // GET: Jobs/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
+            var j = new JobViewModel();
+
             if (id == null)
             {
                 return NotFound();
@@ -234,13 +257,21 @@ namespace Job_Hunter_Trapper_Keeper.Controllers
 
             var job = await _context.Job
                 .Include("JobNotes")
+                .Include("Company")
                 .SingleOrDefaultAsync(m => m.Id == id);
+
+            j.Id = job.Id;
+            j.Company = job.Company.Name;
+            j.JobTitle = job.JobTitle;
+            j.JobNotes = job.JobNotes;
+
             if (job == null)
             {
                 return NotFound();
             }
 
-            return View(job);
+
+            return View(j);
         }
 
         // POST: Jobs/Delete/5
