@@ -26,9 +26,12 @@
         <dt>
             @Html.DisplayNameFor(model => model.JobNotes)
         </dt>
+        @foreach(var note in Model.JobNotes)
+        {
         <dd>
-            @Html.DisplayFor(model => model.JobNotes)
+            @note.Notes
         </dd>
+        }
     </dl>
     
     <form asp-action="Delete">

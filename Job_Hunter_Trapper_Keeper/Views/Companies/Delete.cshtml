@@ -47,6 +47,15 @@
         <dd>
             @Html.DisplayFor(model => model.Phone)
         </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.CompanyNotes)
+        </dt>
+        @foreach(var note in Model.CompanyNotes)
+        {
+        <dd>
+           @note.Notes
+        </dd>
+        }
     </dl>
     
     <form asp-action="Delete">

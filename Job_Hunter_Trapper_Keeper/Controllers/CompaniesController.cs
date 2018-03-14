@@ -9,9 +9,11 @@ using Job_Hunter_Trapper_Keeper.Data;
 using Job_Hunter_Trapper_Keeper.Models;
 using Job_Hunter_Trapper_Keeper.Models.ViewModels;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Job_Hunter_Trapper_Keeper.Controllers
 {
+    [Authorize]
     public class CompaniesController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -104,31 +106,50 @@ namespace Job_Hunter_Trapper_Keeper.Controllers
         }
 
         // GET: Jobs/Add Note/5
-        public async Task<IActionResult> AddNote(int companyId)
+        public async Task<IActionResult> AddNote(int id)
         {
+            var c = new CompanyAddNoteViewModel();
 
-            var company = await _context.Company
+            var company = _context.Company
                 .Include("CompanyNotes")
-                .SingleOrDefaultAsync(m => m.Id == companyId);
+                .SingleOrDefault(m => m.Id == id);
+
+            c.Id = company.Id;
+            c.User = await _userManager.GetUserAsync(User);
+            c.CompanyName = company.Name;
+
+
+
             if (company == null)
             {
                 return NotFound();
             }
-            return View(company);
+            return View(c);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddNote(int companyId, CompanyNotes companyNote)
+        public async Task<IActionResult> AddNote(int id, CompanyAddNoteViewModel companyNote)
         {
-            var note = new CompanyNotes()
+
+            var note = new CompanyAddNoteViewModel()
             {
                 User = await _userManager.GetUserAsync(User),
-                CompanyId = companyId,
-                Notes = companyNote.Notes,
+                Id = id,
+                CompanyName = companyNote.CompanyName,
+                Note = companyNote.Note
             };
 
-            if (companyId != companyNote.CompanyId)
+            var cn = new CompanyNotes()
+            {
+                User = note.User,
+                CompanyId = id,
+                Notes = note.Note
+            };
+
+            
+
+            if (id != companyNote.Id)
             {
                 return NotFound();
             }
@@ -137,7 +158,7 @@ namespace Job_Hunter_Trapper_Keeper.Controllers
             {
                 try
                 {
-                    _context.Update(companyNote);
+                    _context.CompanyNotes.Add(cn);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -193,7 +214,7 @@ namespace Job_Hunter_Trapper_Keeper.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, CompanyNotesViewModel company)
+        public async Task<IActionResult> Edit(int id, Company company)
         {
             if (id != company.Id)
             {

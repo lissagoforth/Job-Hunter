@@ -9,13 +9,15 @@ using Job_Hunter_Trapper_Keeper.Data;
 using Job_Hunter_Trapper_Keeper.Models;
 using Job_Hunter_Trapper_Keeper.Models.ViewModels;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Job_Hunter_Trapper_Keeper.Controllers
 {
+    [Authorize]
     public class JobsController : Controller
     {
         private readonly ApplicationDbContext _context;
-        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly UserManager<ApplicationUser> _userManager;  
 
         public JobsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
         {
@@ -123,37 +125,47 @@ namespace Job_Hunter_Trapper_Keeper.Controllers
         }
 
         // GET: Jobs/Add Note/5
-        public async Task<IActionResult> AddNote(int jobId)
+        public async Task<IActionResult> AddNote(int id)
         {
-            var note = new JobNotes();
+            var note = new JobAddNoteViewModel();
 
             var job = await _context.Job
                 .Include("JobNotes")
-                .SingleOrDefaultAsync(m => m.Id == jobId);
+                .Include("Company")
+                .SingleOrDefaultAsync(m => m.Id == id);
 
             note.User = await _userManager.GetUserAsync(User);
-            note.JobId = jobId;
-            note.Notes = "this is a hard-coded test note";
+            note.Id = id;
+            note.CompanyName = job.Company.Name;
+            note.JobTitle = job.JobTitle;
 
             if (job == null)
             {
                 return NotFound();
             }
-            return View(job);
+            return View(note);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddNote(int jobId, JobNotes jobNote)
+        public async Task<IActionResult> AddNote(int id, JobAddNoteViewModel jobNote)
         {
-            var note = new JobNotes()
+            var note = new JobAddNoteViewModel()
             {
                 User =  await _userManager.GetUserAsync(User),
-                JobId = jobId,
-                Notes = jobNote.Notes,
+                Id = id,
+                CompanyName = jobNote.CompanyName,
+                Note = jobNote.Note
             };
 
-            if (jobId != jobNote.JobId)
+            var jn = new JobNotes()
+            {
+                User = note.User,
+                JobId = id,
+                Notes = note.Note
+            };
+
+            if (id != jobNote.Id)
             {
                 return NotFound();
             }
@@ -162,7 +174,7 @@ namespace Job_Hunter_Trapper_Keeper.Controllers
             {
                 try
                 {
-                    _context.Update(jobNote);
+                    _context.JobNotes.Add(jn);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -200,6 +212,7 @@ namespace Job_Hunter_Trapper_Keeper.Controllers
             j.Company = job.Company.Name;
             j.JobTitle = job.JobTitle;
             j.JobNotes = job.JobNotes;
+            j.CompanyId = job.CompanyId;
 
             if (job == null)
             {
@@ -215,7 +228,7 @@ namespace Job_Hunter_Trapper_Keeper.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, JobViewModel job)
+        public async Task<IActionResult> Edit(int id, Job job)
         {
             if (id != job.Id)
             {

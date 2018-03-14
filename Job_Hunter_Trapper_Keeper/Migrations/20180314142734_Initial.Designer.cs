@@ -11,7 +11,7 @@ using System;
 namespace Job_Hunter_Trapper_Keeper.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20180310205955_Initial")]
+    [Migration("20180314142734_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -111,9 +111,14 @@ namespace Job_Hunter_Trapper_Keeper.Migrations
                     b.Property<string>("Notes")
                         .IsRequired();
 
+                    b.Property<string>("UserId")
+                        .IsRequired();
+
                     b.HasKey("Id");
 
                     b.HasIndex("CompanyId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("CompanyNotes");
                 });
@@ -150,9 +155,14 @@ namespace Job_Hunter_Trapper_Keeper.Migrations
                     b.Property<string>("Notes")
                         .IsRequired();
 
+                    b.Property<string>("UserId")
+                        .IsRequired();
+
                     b.HasKey("Id");
 
                     b.HasIndex("ContactId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("ContactNotes");
                 });
@@ -167,6 +177,8 @@ namespace Job_Hunter_Trapper_Keeper.Migrations
                     b.Property<string>("JobTitle");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CompanyId");
 
                     b.ToTable("Job");
                 });
@@ -195,9 +207,14 @@ namespace Job_Hunter_Trapper_Keeper.Migrations
                     b.Property<string>("Notes")
                         .IsRequired();
 
+                    b.Property<string>("UserId")
+                        .IsRequired();
+
                     b.HasKey("Id");
 
                     b.HasIndex("JobId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("JobNotes");
                 });
@@ -316,6 +333,11 @@ namespace Job_Hunter_Trapper_Keeper.Migrations
                         .WithMany("CompanyNotes")
                         .HasForeignKey("CompanyId")
                         .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("Job_Hunter_Trapper_Keeper.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("Job_Hunter_Trapper_Keeper.Models.ContactNotes", b =>
@@ -324,13 +346,31 @@ namespace Job_Hunter_Trapper_Keeper.Migrations
                         .WithMany("ContactNotes")
                         .HasForeignKey("ContactId")
                         .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("Job_Hunter_Trapper_Keeper.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("Job_Hunter_Trapper_Keeper.Models.Job", b =>
+                {
+                    b.HasOne("Job_Hunter_Trapper_Keeper.Models.Company", "Company")
+                        .WithMany()
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("Job_Hunter_Trapper_Keeper.Models.JobNotes", b =>
                 {
                     b.HasOne("Job_Hunter_Trapper_Keeper.Models.Job", "Job")
-                        .WithMany("jobNotes")
+                        .WithMany("JobNotes")
                         .HasForeignKey("JobId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("Job_Hunter_Trapper_Keeper.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 

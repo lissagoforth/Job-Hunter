@@ -85,20 +85,6 @@ namespace Job_Hunter_Trapper_Keeper.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Job",
-                columns: table => new
-                {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    CompanyId = table.Column<int>(nullable: false),
-                    JobTitle = table.Column<string>(nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Job", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "JobContact",
                 columns: table => new
                 {
@@ -225,13 +211,40 @@ namespace Job_Hunter_Trapper_Keeper.Migrations
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     CompanyId = table.Column<int>(nullable: false),
-                    Notes = table.Column<string>(nullable: false)
+                    Notes = table.Column<string>(nullable: false),
+                    UserId = table.Column<string>(nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_CompanyNotes", x => x.Id);
                     table.ForeignKey(
                         name: "FK_CompanyNotes_Company_CompanyId",
+                        column: x => x.CompanyId,
+                        principalTable: "Company",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CompanyNotes_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Job",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    CompanyId = table.Column<int>(nullable: false),
+                    JobTitle = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Job", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Job_Company_CompanyId",
                         column: x => x.CompanyId,
                         principalTable: "Company",
                         principalColumn: "Id",
@@ -245,7 +258,8 @@ namespace Job_Hunter_Trapper_Keeper.Migrations
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     ContactId = table.Column<int>(nullable: false),
-                    Notes = table.Column<string>(nullable: false)
+                    Notes = table.Column<string>(nullable: false),
+                    UserId = table.Column<string>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -254,6 +268,12 @@ namespace Job_Hunter_Trapper_Keeper.Migrations
                         name: "FK_ContactNotes_Contact_ContactId",
                         column: x => x.ContactId,
                         principalTable: "Contact",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ContactNotes_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -265,7 +285,8 @@ namespace Job_Hunter_Trapper_Keeper.Migrations
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     JobId = table.Column<int>(nullable: false),
-                    Notes = table.Column<string>(nullable: false)
+                    Notes = table.Column<string>(nullable: false),
+                    UserId = table.Column<string>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -274,6 +295,12 @@ namespace Job_Hunter_Trapper_Keeper.Migrations
                         name: "FK_JobNotes_Job_JobId",
                         column: x => x.JobId,
                         principalTable: "Job",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_JobNotes_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -323,14 +350,34 @@ namespace Job_Hunter_Trapper_Keeper.Migrations
                 column: "CompanyId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_CompanyNotes_UserId",
+                table: "CompanyNotes",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_ContactNotes_ContactId",
                 table: "ContactNotes",
                 column: "ContactId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ContactNotes_UserId",
+                table: "ContactNotes",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Job_CompanyId",
+                table: "Job",
+                column: "CompanyId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_JobNotes_JobId",
                 table: "JobNotes",
                 column: "JobId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_JobNotes_UserId",
+                table: "JobNotes",
+                column: "UserId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -366,16 +413,16 @@ namespace Job_Hunter_Trapper_Keeper.Migrations
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "AspNetUsers");
-
-            migrationBuilder.DropTable(
-                name: "Company");
-
-            migrationBuilder.DropTable(
                 name: "Contact");
 
             migrationBuilder.DropTable(
                 name: "Job");
+
+            migrationBuilder.DropTable(
+                name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
+                name: "Company");
         }
     }
 }

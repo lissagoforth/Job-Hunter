@@ -9,9 +9,11 @@ using Job_Hunter_Trapper_Keeper.Data;
 using Job_Hunter_Trapper_Keeper.Models;
 using Microsoft.AspNetCore.Identity;
 using Job_Hunter_Trapper_Keeper.Models.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Job_Hunter_Trapper_Keeper.Controllers
 {
+    [Authorize]
     public class ContactsController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -135,7 +137,7 @@ namespace Job_Hunter_Trapper_Keeper.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, ContactNotesViewModel contact)
+        public async Task<IActionResult> Edit(int id, Contact contact)
         {
             if (id != contact.Id)
             {
@@ -166,31 +168,45 @@ namespace Job_Hunter_Trapper_Keeper.Controllers
         }
 
         // GET: Jobs/Add Note/5
-        public async Task<IActionResult> AddNote(int contactId)
+        public async Task<IActionResult> AddNote(int id)
         {
+            var c = new ContactAddNoteViewModel();
 
             var contact = await _context.Contact
                 .Include("ContactNotes")
-                .SingleOrDefaultAsync(m => m.Id == contactId);
+                .SingleOrDefaultAsync(m => m.Id == id);
+
+            var fullname = (contact.FirstName + " " + contact.LastName);
+            c.User = await _userManager.GetUserAsync(User);
+            c.Id = contact.Id;
+            c.ContactName = fullname;
+
             if (contact == null)
             {
                 return NotFound();
             }
-            return View(contact);
+            return View(c);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddNote(int contactId, ContactNotes contactNote)
+        public async Task<IActionResult> AddNote(int id, ContactAddNoteViewModel contactNote)
         {
-            var note = new ContactNotes()
+            var note = new ContactAddNoteViewModel()
             {
                 User = await _userManager.GetUserAsync(User),
-                ContactId = contactId,
-                Notes = contactNote.Notes,
+                Id = id,
+                ContactName = contactNote.ContactName
             };
 
-            if (contactId != contactNote.ContactId)
+            var cn = new ContactNotes()
+            {
+                User = note.User,
+                ContactId = id,
+                Notes = note.Note
+            };
+
+            if (id != contactNote.Id)
             {
                 return NotFound();
             }
@@ -199,7 +215,7 @@ namespace Job_Hunter_Trapper_Keeper.Controllers
             {
                 try
                 {
-                    _context.Update(contactNote);
+                    _context.ContactNotes.Add(cn);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)

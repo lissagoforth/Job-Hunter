@@ -8,7 +8,7 @@ namespace Job_Hunter_Trapper_Keeper.Models
         public int Id { get; set; }
 
         [Required]
-        public ApplicationUser User;
+        public virtual ApplicationUser User { get; set; }
 
         [Required]
         public int CompanyId { get; set; }

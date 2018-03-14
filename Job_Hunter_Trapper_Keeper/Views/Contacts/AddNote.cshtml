@@ -1,25 +1,21 @@
-﻿@model Job_Hunter_Trapper_Keeper.Models.ContactNotes
+﻿@model Job_Hunter_Trapper_Keeper.Models.ViewModels.ContactAddNoteViewModel
 
 @{
     ViewData["Title"] = "AddNote";
 }
 
-<h2>AddNote</h2>
+<h2>Add Note for @Model.ContactName</h2>
 
-<h4>ContactNotes</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="AddNote">
+        <form asp-action="AddNote" asp-route-id="@Model.Id">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
             <div class="form-group">
-                <label asp-for="Contact" class="control-label"></label>
-                <select asp-for="Contact" class ="form-control" asp-items="ViewBag.Contact"></select>
-            </div>
-            <div class="form-group">
-                <label asp-for="Notes" class="control-label"></label>
-                <input asp-for="Notes" class="form-control" />
-                <span asp-validation-for="Notes" class="text-danger"></span>
+                <label asp-for="Note" class="control-label"></label>
+                <input asp-for="Note" class="form-control" />
+                <span asp-validation-for="Note" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-default" />
