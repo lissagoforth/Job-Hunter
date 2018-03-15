@@ -4,21 +4,19 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Job_Hunter_Trapper_Keeper.Models
+namespace Job_Hunter_Trapper_Keeper.Models.ViewModels
 {
-    public class Job
+    public class JobCreateViewModel
     {
-        [Key]
         public int Id { get; set; }
 
-        [Required]
-        public int CompanyId { get; set; }
-        public Company Company { get; set; }
+        public string Company { get; set; }
 
         [Display(Name = "Job Title")]
         public string JobTitle { get; set; }
 
-        public virtual ICollection<JobNotes> JobNotes { get; set; }
-
+        [Display(Name = "Job Notes")]
+        public string Note { get; set; }
     }
 }
+

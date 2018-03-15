@@ -4,15 +4,14 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Job_Hunter_Trapper_Keeper.Models
+namespace Job_Hunter_Trapper_Keeper.Models.ViewModels
 {
-    public class Company
+    public class CompanyNotesViewModel
     {
-        [Key]
         public int Id { get; set; }
 
-        [Required]
-        public string Name { get; set; }
+        [Display(Name = "Company's Name")]
+        public string CompanyName { get; set; }
 
         public string Address { get; set; }
 
@@ -24,6 +23,7 @@ namespace Job_Hunter_Trapper_Keeper.Models
 
         public string Phone { get; set; }
 
-        public ICollection<CompanyNotes> CompanyNotes { get; set; }
+        [Display(Name = "Notes")]
+        public virtual IEnumerable<CompanyNotes> CompanyNotes { get; set; }
     }
 }

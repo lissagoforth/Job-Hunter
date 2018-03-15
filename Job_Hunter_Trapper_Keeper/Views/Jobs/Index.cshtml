@@ -1,0 +1,45 @@
+﻿@model Job_Hunter_Trapper_Keeper.Models.ViewModels.JobListViewModel
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h2>Index</h2>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+               Job Title
+            </th>
+            <th>
+                Company
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Jobs)
+        {
+            <tr>
+                <td>
+                    <a asp-area="" asp-controller="Jobs" asp-action="Details" asp-route-id="@item.Id">
+                        @Html.DisplayFor(modelItem => item.JobTitle)
+                    </a>
+                </td>
+
+                <td>
+                    @Html.DisplayFor(modelItem => item.Company)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                    <a asp-action="AddNote" asp-route-id="@item.Id">Add Note</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
