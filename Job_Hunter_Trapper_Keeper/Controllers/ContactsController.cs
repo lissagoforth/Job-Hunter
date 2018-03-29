@@ -196,7 +196,8 @@ namespace Job_Hunter_Trapper_Keeper.Controllers
             {
                 User = await _userManager.GetUserAsync(User),
                 Id = id,
-                ContactName = contactNote.ContactName
+                ContactName = contactNote.ContactName,
+                Note = contactNote.Note
             };
 
             var cn = new ContactNotes()

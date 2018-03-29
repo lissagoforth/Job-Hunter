@@ -228,9 +228,9 @@ namespace Job_Hunter_Trapper_Keeper.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Job job)
+        public async Task<IActionResult> Edit(int id, JobViewModel jvm)
         {
-            if (id != job.Id)
+            if (id != jvm.Id)
             {
                 return NotFound();
             }
@@ -239,12 +239,21 @@ namespace Job_Hunter_Trapper_Keeper.Controllers
             {
                 try
                 {
-                    _context.Update(job);
+                    Company c = new Company();
+                    c = _context.Company.Where(co => co.Id == jvm.CompanyId).SingleOrDefault();
+                    c.Name = jvm.Company;
+                    _context.Company.Update(c);
+                    await _context.SaveChangesAsync();
+                    var j = new Job();
+                    j.CompanyId = jvm.CompanyId;
+                    j.Id = id;
+                    j.JobTitle = jvm.JobTitle;
+                    _context.Job.Update(j);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!JobExists(job.Id))
+                    if (!JobExists(jvm.Id))
                     {
                         return NotFound();
                     }
@@ -255,7 +264,7 @@ namespace Job_Hunter_Trapper_Keeper.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(job);
+            return View(jvm);
         }
 
         // GET: Jobs/Delete/5
